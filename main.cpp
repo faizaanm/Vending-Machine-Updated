@@ -57,7 +57,8 @@ public:
     void setVQuantity(int);
     void setVID(int);
     void setVSelection(string);
-    int readMoneyIn();
+    int readMoneyInA();
+    int readMoneyInB();
     
 };
 
@@ -79,22 +80,21 @@ public:
     
 };
 
-class MachineC : public VendingMachine
+class Machine100C : public VendingMachine
 {
 private:
     string card;
-    int total = 0;
     
 public:
     //Products products[10];
-    MachineC(string c = "0000000000000");
+    int total = 0;
+    Machine100C(string c = "0000000000000");
     string returnCard();
     void printInfo();
     void lastFour(string card);
-    void purchase(string card);
+    bool purchase(string card, int quantity);
     bool checkCard(string card);
     void print(string card);
-    
 };
 
 
@@ -206,7 +206,7 @@ void VendingMachine::setVSelection(string x)
     selection_ven = x;
 }
 
-int VendingMachine::readMoneyIn()
+int VendingMachine::readMoneyInA()
 {
     double total = 0;
     int moneyVal;
@@ -220,14 +220,106 @@ int VendingMachine::readMoneyIn()
         //aka start over, need to fix this
     }
     
-    total += moneyVal;
+    if (moneyVal != 100)
+    {
+        ;
+    }
+    else
+    {
+        total += moneyVal;
+    }
+    
     
     while (moneyVal != 0)
     {
         cin >> moneyVal;
-        total += moneyVal;
+        
+        if (moneyVal != 100)
+        {
+            ;
+        }
+        else
+        {
+            total += moneyVal;
+        }
+        
     }
     cin.ignore();
+    
+    cout << "You entered an amount of " << total << " cents." << endl;
+    cout << "Processing your purchase. . . " << endl;
+    
+    return total;
+}
+
+int VendingMachine::readMoneyInB()
+{
+    double total = 0;
+    int moneyVal;
+//    int paymentChoice;
+//    bool repeat = false;
+    
+//    do
+//    {
+//        cout << "Select an option (1 - dollar bill and 2 - coins) --> ";
+//        cin >> paymentChoice;
+//
+//        if (paymentChoice == 1)
+//        {
+//
+//        }
+//        else if (paymentChoice == 2)
+//        {
+//
+//        }
+//        else
+//        {
+//            //error
+//            repeat = true;
+//        }
+//    }
+//    while (repeat);
+
+    
+    cout << "Please insert either dollar bills or coins --> ";
+    cin >> moneyVal;
+    
+    if (moneyVal == 0)
+    {
+        return total;
+        //aka start over, need to fix this
+    }
+    
+    if (moneyVal % 5 != 0)
+    {
+        ;
+    }
+    else
+    {
+        total += moneyVal;
+    }
+//    if (moneyVal == 100)
+//    {
+//        cout << "Error: Not accepting dollar bills!" << endl;
+//        total = -1;
+//        return total;
+//    }
+    
+    while (moneyVal != 0)
+    {
+        cin >> moneyVal;
+        
+        if (moneyVal % 5 != 0)
+        {
+            ;
+        }
+        else
+        {
+            total += moneyVal;
+        }
+        
+    }
+    //cin.ignore();
     
     cout << "You entered an amount of " << total << " cents." << endl;
     cout << "Processing your purchase. . . " << endl;
@@ -287,65 +379,70 @@ string Products::getPSelection()
 }
 
 //machine C class functions
-MachineC::MachineC(string c)
+Machine100C::Machine100C(string c)
 {
     c = card;
 }
 
-void MachineC::printInfo()
-{
-    cout << "This machine accepts credit card only.\n";
-    cout << "Available items: \n";
-}
 
-void MachineC::lastFour(string card)
-{
-    //get last 4 digits for output report
-    //wrong
-    string temp = "    ";
-    
-    if (checkCard(card))
-    {
-        for (int i = card.length() - 4; i <= card.length(); i++)
-        {
-            temp = card[i];
-            cout << temp;
-        }
-    }
-    else
-    {
-        
-    }
-}
 
-void MachineC::purchase(string card)
+//void Machine100C::lastFour(string card)
+//{
+//    //get last 4 digits for output report
+//    //wrong
+//    string temp = "    ";
+//
+//    if (checkCard(card))
+//    {
+//        for (int i = card.length() - 4; i <= card.length(); i++)
+//        {
+//            temp = card[i];
+//            cout << temp;
+//        }
+//    }
+//    else
+//    {
+//
+//    }
+//}
+
+bool Machine100C::purchase(string card, int quantity)
 {
-    for (int i = 1; i <= 2; i++)
+    bool repeat = true;
+    cout << fixed << setprecision(2);
+    int i = 0;
+    while (repeat)
     {
         cout << "Enter your credit card number --> ";
         cin >> card;
-        
+        i++;
         if (checkCard(card))
         {
-            cout << "You credit card was successfully charged for $" << Products[total].getPPrice() << endl;
+            cout << "You credit card was successfully charged for $" << (Products[total].getPPrice() * quantity) / 100.00 << endl;
             // need to get price from the machine and change to dollars;
             
-            cout << "Thank you! Please Take your item.\n";
+            cout << "Thank you! Please take your item." << endl;
+            repeat = false;
+            return true;
+
             break;
         }
         else if (i == 1)
         {
-            cout << "Invalid credit card number was entered.\n";
+            cout << "Invalid credit card number was entered." << endl;
         }
         //Two invalid attempts will cancel item
         else if (i == 2)
         {
-            cout << "Item has been canceled.\n";
+            cout << "Too many invalid attempts! Your selection has been canceled." << endl;
+            repeat = false;
+            return false;
         }
     }
+    return false;
 }
 
-bool MachineC::checkCard(string card)
+bool Machine100C::checkCard(string card)
 {
     int num = card.length();
     
@@ -371,7 +468,6 @@ bool MachineC::checkCard(string card)
             isSecond = (sum % 10 == 0) ? true : false;
             return isSecond;
         }
-        
         else if (card[0] == '3' && card[1] == '7')
         {
             int sum = 0, isSecond = false;
@@ -393,31 +489,30 @@ bool MachineC::checkCard(string card)
         else
             return isSecond;
     }
-    
     else
     {
         return isSecond;
     }
 }
 
-void MachineC::print(string card)
+void Machine100C::print(string card)
 {
     if (checkCard(card))
     {
         cout << "You credit card was successfully charged for $" << endl;
-        cout << "Thank you! Please that your item.\n";
+        cout << "Thank you! Please take your item.\n";
     }
     else
     {
         cout << "Invalid credit card number was entered.\n";
     }
 }
-//MachineC::MachineC(string c)
+//Machine100C::Machine100C(string c)
 //{
 //    card = c;
 //}
 //
-//string MachineC::returnCard()
+//string Machine100C::returnCard()
 //{
 //    return card;
 //}
@@ -500,7 +595,7 @@ void readmachineB(ifstream &indata, Machine100B machineB[], Products products[])
     }
 }
 
-void readmachineC(ifstream & indata, MachineC machineC[], Products products[])
+void readmachineC(ifstream &indata, Machine100C machineC[], Products products[])
 {
     int total = 0;
     int quarter, dime, nickel;
@@ -546,7 +641,7 @@ const int MAX_MACHINES = 30;
 void readProducts(ifstream&, Products[]);
 void readmachineA(ifstream &indata, Machine100A machineA[], Products products[]);
 void readmachineB(ifstream &indata, Machine100B machineB[], Products products[]);
-void readmachineC(ifstream &indata, MachineC machineC[], Products products[]);
+void readmachineC(ifstream &indata, Machine100C machineC[], Products products[]);
 void readProductC(ifstream&, Products[]);
 
 //void machineChange(Machine100A[], int, int, int);
@@ -571,7 +666,7 @@ int main()
 {
     ifstream machine_fileA;
     ifstream machine_fileB;
-    ifstream machine_Cfile;
+    ifstream machine_fileC;
     ifstream products_file;
     
     ofstream result;
@@ -585,14 +680,14 @@ int main()
     Products productC[MAX_PRODUCTS];
     
     // Machine C stuff
-    MachineC machineC[MAX_MACHINES];
+    Machine100C machineC[MAX_MACHINES];
     string cardNum;
     string machine;
     string item;
-    MachineC call;
+    Machine100C call;
     machine_fileA.open("/Users/faizaan/Downloads/testMachineA.txt");
     machine_fileB.open("/Users/faizaan/Downloads/testMachineB.txt");
-    machine_Cfile.open("/Users/faizaan/Downloads/testMachineC.txt");
+    machine_fileC.open("/Users/faizaan/Downloads/testMachineC.txt");
     
     products_file.open("/Users/faizaan/Downloads/products.txt");
     result.open("/Users/faizaan/Downloads/results.txt");
@@ -611,80 +706,85 @@ int main()
         return 1;
     }
     
+    if (!machine_fileC)
+    {
+        cout << "Machines.txt not found." << endl;
+        system("Pause");
+        return 1;
+    }
+    
     if (!products_file)
     {
         cout << "products.txt not found." << endl;
         system("Pause");
         return 1;
     }
-    //cout << "Please enter a startup code --> ";
-    //cin >> startCode;
-    //while (startCode != "csci140")
-    //{
-    //    cout << "Machine not found. " << endl;
-    //    cout << "Please enter another startup code --> ";
-    //    cin >> startCode;
-    //}
     
     int total = 0;
     
     cout << "Please enter a startup code --> ";
     cin >> startCode;
-    while (startCode != "csci140")
+    
+    while (startCode != "spring19")
     {
         cout << "Machine not found. " << endl;
         cout << "Please enter another startup code --> ";
         cin >> startCode;
     }
-    //readmachineC(machine_Cfile, machineC, productC);
+    
     readProducts(products_file, products);
     readProductC(products_file, productC);
     readmachineA(machine_fileA, machineA, products);
     readmachineB(machine_fileB, machineB, products);
+    readmachineC(machine_fileC, machineC, products);
     
     cout << "Initializing machines. Please wait. . ." << endl;
     cout << "Machines are ready." << endl;
-    cout << "Available machines: 100A1 100A2, 100C1, 100C2" << endl << endl;
+    cout << "Available machines: 100A1, 100A2, 100B1, 100C1, 100C2" << endl << endl;
     cout << "Select a machine --> ";
     cin >> machineCode;
     
     char machineModel = machineCode[3];
     int machineNumber = (machineCode[4] - '0') - 1;
-    //cout << machineNumber << endl;
-    while (machineCode != "csci140")
+    
+    while (machineCode != "spring19")
     {
+        int quantity = 0;
         if (machineModel == 'A')
         {
             string input;
-            //int price;
-            //int sentinel;
             int moneyIn;
             
             cout << "This machine accepts one-dollar bill only." << endl;
             cout << "Available items: " << endl;
             for (int i = 0; i < machineA[machineNumber].getnumItems(); i++)
             {
-                cout << setw(5) << machineA[machineNumber].Products[i].getPSelection() << " " << machineA[machineNumber].Products[i].getPPrice() << machineA[machineNumber].Products[i].getPDescription() << endl;
+                if (machineA[machineNumber].Products[i].getPQuantity() != 0)
+                {
+                    cout << setw(5) << machineA[machineNumber].Products[i].getPSelection() << " " << machineA[machineNumber].Products[i].getPPrice() << machineA[machineNumber].Products[i].getPDescription() << endl;
+                }
             }
             cout << "Select an item --> ";
             cin >> item;
+            
+            cout << "Please enter the quantity you want of that product --> ";
+            cin >> quantity;
+            
+            if (quantity <= 0)
+            {
+                cout << "Error: Invalid quantity chosen!" << endl;
+                break;
+            }
+            
             for (int i = 0; i < machineA[machineNumber].getnumItems(); i++)
             {
-                if (machineA[machineNumber].Products[i].getPSelection() == item)
+                if (machineA[machineNumber].Products[i].getPSelection() == item && machineA[machineNumber].Products[i].getPQuantity() >= quantity)
                 {
-                    //int temp;
                     cout << "You selected : " << machineA[machineNumber].Products[i].getPDescription() << endl;
-                    cout << "The cost of this item is " << machineA[machineNumber].Products[i].getPPrice() << " cents" << endl;
-//                    cout << "Insert your money --> ";
-//                    cin >> price >> sentinel;
-//                    if (price == 0)
-//                    {
-//                        cout << "You chose to cancel your selection\n";
-//                        break;
-//                    }
-//                    cout << "Your entered an amount of " << price << " cents." << endl;
-//                    cout << "Processing your purchase. . . " << endl;
-                    moneyIn = machineA[machineNumber].readMoneyIn();
+                    cout << "You selected a quantity of: " << quantity << endl;
+                    cout << "The total cost of the item(s) is " << machineA[machineNumber].Products[i].getPPrice() * quantity << " cents" << endl;
+
+                    moneyIn = machineA[machineNumber].readMoneyInA();
                     
                     if (moneyIn == 0)
                     {
@@ -692,101 +792,152 @@ int main()
                         break;
                     }
                     
-                    //temp = price - machineA[0].Products[i].getPPrice();
-                    makeChangeA(machineA, machineA[machineNumber].Products[i].getPPrice(), moneyIn, machineNumber);
-                    //machineChange(machineA, price - machineA[0].Products[i].getPPrice(), price, temp);
+                    makeChangeA(machineA, machineA[machineNumber].Products[i].getPPrice() * quantity, moneyIn, machineNumber);
                     
+                    machineA[machineNumber].Products[i].setPQuantity(machineA[machineNumber].Products[i].getPQuantity() - quantity);
+
+                }
+                else if (machineA[machineNumber].Products[i].getPSelection() == item && machineA[machineNumber].Products[i].getPQuantity() < quantity)
+                {
+                    cout << "Error: Selected quantity not available, please try again or check another machine!" << endl;
                 }
             }
         }
         if (machineModel == 'B')
         {
             string input;
-            //int price;
-            //int sentinel;
             int moneyIn;
+            int paymentChoice;
             
-            cout << "This machine accepts one-dollar bill only." << endl;
+            cout << "This machine accepts coins and one-dollar bills." << endl;
             cout << "Available items: " << endl;
             for (int i = 0; i < machineB[machineNumber].getnumItems(); i++)
             {
-                cout << setw(5) << machineB[machineNumber].Products[i].getPSelection() << " " << machineB[machineNumber].Products[i].getPPrice() << machineB[machineNumber].Products[i].getPDescription() << endl;
+                if (machineB[machineNumber].Products[i].getPQuantity() != 0)
+                {
+                    cout << setw(5) << machineB[machineNumber].Products[i].getPSelection() << " " << machineB[machineNumber].Products[i].getPPrice() << machineB[machineNumber].Products[i].getPDescription() << endl;
+                }
             }
             cout << "Select an item --> ";
             cin >> item;
+            
+            cout << "Please enter the quantity you want of that product --> ";
+            cin >> quantity;
+            
+            if (quantity <= 0)
+            {
+                cout << "Error: Invalid quantity chosen!" << endl;
+                break;
+            }
+            
             for (int i = 0; i < machineB[machineNumber].getnumItems(); i++)
             {
-                if (machineB[machineNumber].Products[i].getPSelection() == item)
+                if (machineB[machineNumber].Products[i].getPSelection() == item && machineB[machineNumber].Products[i].getPQuantity() >= quantity)
                 {
-                    //int temp;
                     cout << "You selected : " << machineB[machineNumber].Products[i].getPDescription() << endl;
-                    cout << "The cost of this item is " << machineB[machineNumber].Products[i].getPPrice() << " cents" << endl;
-                    //                    cout << "Insert your money --> ";
-                    //                    cin >> price >> sentinel;
-                    //                    if (price == 0)
-                    //                    {
-                    //                        cout << "You chose to cancel your selection\n";
-                    //                        break;
-                    //                    }
-                    //                    cout << "Your entered an amount of " << price << " cents." << endl;
-                    //                    cout << "Processing your purchase. . . " << endl;
-                    moneyIn = machineB[machineNumber].readMoneyIn();
+                    cout << "You selected a quantity of: " << quantity << endl;
+                    cout << "The total cost of the item(s) is " << machineB[machineNumber].Products[i].getPPrice() * quantity << " cents" << endl;
+                    
+//                    cout << "Select an option (1 - dollar bill and 2 - cents) --> ";
+//                    cin >> paymentChoice;
+                    //cin.ignore();
+                    
+//                    if (paymentChoice == 1)
+//                    {
+//                        moneyIn = machineB[machineNumber].readMoneyInA();
+//                    }
+//                    else if (paymentChoice == 2)
+//                    {
+//                        moneyIn = machineB[machineNumber].readMoneyInB();
+//                    }
+//                    else
+//                    {
+//                        cout << "Error: Invalid value entered for payment choice!" << endl;
+//                        break;
+//                    }
+                    
+                    moneyIn = machineB[machineNumber].readMoneyInB();
+
                     
                     if (moneyIn == 0)
                     {
                         cout << "You chose to cancel your selection." << endl;
                         break;
                     }
+//                    else if (moneyIn == -1)
+//                    {
+//                        //cout << "Please try again!" << endl;
+//                        break;
+//                    }
                     
-                    //temp = price - machineA[0].Products[i].getPPrice();
-                    makeChangeB(machineB, machineB[machineNumber].Products[i].getPPrice(), moneyIn, machineNumber);
-                    //machineChange(machineA, price - machineA[0].Products[i].getPPrice(), price, temp);
                     
+                    makeChangeB(machineB, machineB[machineNumber].Products[i].getPPrice() * quantity, moneyIn, machineNumber);
+                    
+                    machineB[machineNumber].Products[i].setPQuantity(machineB[machineNumber].Products[i].getPQuantity() - quantity);
+                    
+                }
+                else if (machineB[machineNumber].Products[i].getPSelection() == item && machineB[machineNumber].Products[i].getPQuantity() < quantity)
+                {
+                    cout << "Error: Selected quantity not available, please try again or check another machine!" << endl;
                 }
             }
         }
-        if (machineCode == "100C1")
+        if (machineModel == 'C')
         {
-            int i = 19;
-            int numofitems = 3;
             string input;
+            //int price;
+            //int sentinel;
+            //int moneyIn;
             
-            call.printInfo();
-            
-            for (int k = 0; k < numofitems; k++)
+            cout << "This machine accepts credit card only. (first one)" << endl;
+            cout << "Available items: " << endl;
+            for (int i = 0; i < machineC[machineNumber].getnumItems(); i++)
             {
-                cout << setw(5) << machineA[0].Products[k].getPSelection() << " " << products[i].getPPrice() << products[i].getPDescription() << endl;
-                i++;
+                if (machineC[machineNumber].Products[i].getPQuantity() != 0)
+                {
+                    cout << setw(5) << machineC[machineNumber].Products[i].getPSelection() << " " << machineC[machineNumber].Products[i].getPPrice() << machineC[machineNumber].Products[i].getPDescription() << endl;
+                }
             }
-            int num = 0;
             cout << "Select an item --> ";
             cin >> item;
-            if (item == machineA[0].Products[0].getPSelection())
-            {
-                
-                cout << "You selected " << products[19].getPDescription() << endl;
-                cout << "The cost of this item is " << products[19].getPPrice() << " cents\n";
-            }
-            else if (item == machineA[0].Products[1].getPSelection())
-            {
-                cout << "You selected " << products[20].getPDescription() << endl;
-                cout << "The cost of this item is " << products[20].getPPrice() << " cents\n";
-            }
-            else if (item == machineA[0].Products[2].getPSelection())
-            {
-                cout << "You selected " << products[21].getPDescription() << endl;
-                cout << "The cost of this item is " << products[21].getPPrice() << " cents\n";
-                
-            }
-            call.purchase(cardNum);
-            call.checkCard(cardNum);
-            call.lastFour(cardNum);
-            call.print(cardNum);
             
+            cout << "Please enter the quantity you want of that product --> ";
+            cin >> quantity;
             
+            if (quantity <= 0)
+            {
+                cout << "Error: Invalid quantity chosen!" << endl;
+                break;
+            }
+            
+            for (int i = 0; i < machineC[machineNumber].getnumItems(); i++)
+            {
+                if (machineC[machineNumber].Products[i].getPSelection() == item && machineC[machineNumber].Products[i].getPQuantity() >= quantity)
+                {
+                    cout << "You selected : " << machineC[machineNumber].Products[i].getPDescription() << endl;
+                    cout << "You selected a quantity of: " << quantity << endl;
+                    cout << "The total cost of the item(s) is " << machineC[machineNumber].Products[i].getPPrice() * quantity << " cents" << endl;
+                    
+                    machineC[machineNumber].total = i;
+                    //need to add quantity into credit card function
+                    if (machineC[machineNumber].purchase(cardNum, quantity))
+                    {
+                        //subtracts quantity when card is valid and charged
+                        machineC[machineNumber].Products[i].setPQuantity(machineC[machineNumber].Products[i].getPQuantity() - quantity);
+                    }
+                }
+                else if (machineC[machineNumber].Products[i].getPSelection() == item && machineC[machineNumber].Products[i].getPQuantity() < quantity)
+                {
+                    cout << "Error: Selected quantity not available, please try again or check another machine!" << endl;
+                }
+            }
         }
+        
+        cout << endl;
         cout << "Select a machine --> ";
         cin >> machineCode;
+        machineModel = machineCode[3];
+        machineNumber = (machineCode[4] - '0') - 1;
     }
     cout << "Report is generating ...\n";
     cout << "System is shutting down.\n";
@@ -957,6 +1108,7 @@ void makeChangeA (Machine100A machine[], int price, int moneyIn, int machineNum)
         cout << setw(4) << "Quarter(s) : " << changeQ << endl;
         cout << setw(4) << "Dime(s) : " << changeD << endl;
         cout << setw(4) << "Nickel(s) : " << changeN << endl;
+        cout << "Thank you! Please take your item." << endl;
     }
     
 }
@@ -1070,6 +1222,49 @@ void makeChangeB (Machine100B machine[], int price, int moneyIn, int machineNum)
         cout << setw(4) << "Quarter(s) : " << changeQ << endl;
         cout << setw(4) << "Dime(s) : " << changeD << endl;
         cout << setw(4) << "Nickel(s) : " << changeN << endl;
+        cout << "Thank you! Please take your item." << endl;
     }
     
 }
+
+
+//if (machineModel == 'F')
+//{
+//    int i = 19;
+//    int numofitems = 3;
+//    string input;
+//
+//    //call.printInfo();
+//
+//    for (int k = 0; k < numofitems; k++)
+//    {
+//        cout << setw(5) << machineA[0].Products[k].getPSelection() << " " << products[i].getPPrice() << products[i].getPDescription() << endl;
+//        i++;
+//        }
+//        int num = 0;
+//        cout << "Select an item --> ";
+//        cin >> item;
+//        if (item == machineA[0].Products[0].getPSelection())
+//        {
+//
+//            cout << "You selected " << products[19].getPDescription() << endl;
+//            cout << "The cost of this item is " << products[19].getPPrice() << " cents\n";
+//        }
+//        else if (item == machineA[0].Products[1].getPSelection())
+//        {
+//            cout << "You selected " << products[20].getPDescription() << endl;
+//            cout << "The cost of this item is " << products[20].getPPrice() << " cents\n";
+//        }
+//        else if (item == machineA[0].Products[2].getPSelection())
+//        {
+//            cout << "You selected " << products[21].getPDescription() << endl;
+//            cout << "The cost of this item is " << products[21].getPPrice() << " cents\n";
+//
+//        }
+//        call.purchase(cardNum);
+//        call.checkCard(cardNum);
+//        //call.lastFour(cardNum);
+//        //call.print(cardNum);
+//
+//
+//        }
